@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { map, of } from 'rxjs';
+import { delay, map, of } from 'rxjs';
 import { AnimeDataAPI, AnimeDetails } from './api.model';
 import { mockAnimeGenres, mockPopularAnime } from './mock.data';
 
@@ -34,9 +34,10 @@ export class AnimeApiService {
    * @param genresId genres id of the anime
    * @returns searched anime that has 'score' property
    */
-  searchAnime(prefix: string, genresId = 1) {
-    return this.http
-      .get<AnimeDataAPI<AnimeDetails>>(`${this.API}/anime?q=${prefix}&genres=${genresId}&limit=6`)
-      .pipe(map(res => res.data.filter(d => !!d.score)));
+  searchAnime(genresId = 1) {
+    return this.http.get<AnimeDataAPI<AnimeDetails>>(`${this.API}/anime?genres=${genresId}&limit=20`).pipe(
+      map(res => res.data.filter(d => !!d.score)),
+      delay(1000)
+    );
   }
 }
