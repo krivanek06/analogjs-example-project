@@ -1,56 +1,47 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
+import { AnimeCardComponent } from '../components/anime-card/anime-card.component';
+import { AnimeApiService } from '../services/anime-api.service';
+
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [MatButtonModule],
+  imports: [MatButtonModule, AnimeCardComponent, MatSelectModule, FormsModule],
   template: `
-    <div>
-      <a href="https://analogjs.org/" target="_blank">
-        <img alt="Analog Logo" class="logo analog" src="/analog.svg" />
-      </a>
+    <div class="h-[200px]">
+      <!-- anime genres -->
+      <mat-form-field appearance="fill">
+        <mat-label>Anime Genres</mat-label>
+        <mat-select [(ngModel)]="searchGenreId">
+          @for (item of animeGenres.value(); track item.mal_id) {
+            <mat-option [value]="item.mal_id">{{ item.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
     </div>
 
-    <h2>Analog</h2>
-
-    <h3 class="text-green-300">The fullstack meta-framework for Angular!</h3>
-
-    <div class="card">
-      <button mat-flat-button color='primary' type="button" (click)="increment()">Count {{ count() }}</button>
-    </div>
-
-    <p class="read-the-docs">
-      <a href="https://analogjs.org" target="_blank">Docs</a> |
-      <a href="https://github.com/analogjs/analog" target="_blank">GitHub</a> |
-      <a href="https://github.com/sponsors/brandonroberts" target="_blank">
-        Sponsor
-      </a>
-    </p>
-  `,
-  styles: `
-    .logo {
-      will-change: filter;
-    }
-
-    .logo:hover {
-      filter: drop-shadow(0 0 2em #646cffaa);
-    }
-
-    .read-the-docs > * {
-      color: #fff;
-    }
-
-    @media (prefers-color-scheme: light) {
-      .read-the-docs > * {
-        color: #213547;
+    <!-- list of anime -->
+    <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 p-4">
+      @for (item of animeDisplay.value(); track $index) {
+        <app-anime-card [animeDetails]="item" />
       }
-    }
+    </div>
   `,
+  styles: ``,
 })
 export default class HomeComponent {
-  count = signal(0);
+  private readonly animeApiService = inject(AnimeApiService);
+  readonly animeGenres = rxResource({
+    loader: () => this.animeApiService.getAnimeGenres(),
+  });
+  readonly animeDisplay = rxResource({
+    request: () => ({ id: this.searchGenreId() }),
+    loader: ({ request }) =>
+      request.id === 0 ? this.animeApiService.getTopAiringAnime() : this.animeApiService.searchAnime('', request.id),
+  });
 
-  increment() {
-    this.count.update((count) => count + 1);
-  }
+  readonly searchGenreId = signal<number>(0);
 }
