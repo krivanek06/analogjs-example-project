@@ -1,8 +1,9 @@
 import { Component, signal } from '@angular/core';
-
+import { MatButtonModule } from '@angular/material/button';
 @Component({
   selector: 'app-home',
   standalone: true,
+  imports: [MatButtonModule],
   template: `
     <div>
       <a href="https://analogjs.org/" target="_blank">
@@ -12,10 +13,10 @@ import { Component, signal } from '@angular/core';
 
     <h2>Analog</h2>
 
-    <h3>The fullstack meta-framework for Angular!</h3>
+    <h3 class="text-green-300">The fullstack meta-framework for Angular!</h3>
 
     <div class="card">
-      <button type="button" (click)="increment()">Count {{ count() }}</button>
+      <button mat-flat-button color='primary' type="button" (click)="increment()">Count {{ count() }}</button>
     </div>
 
     <p class="read-the-docs">
