@@ -35,7 +35,7 @@ export class AnimeApiService {
    * @returns searched anime that has 'score' property
    */
   searchAnime(genresId = 1) {
-    return this.http.get<AnimeDataAPI<AnimeDetails>>(`${this.API}/anime?genres=${genresId}&limit=20`).pipe(
+    return this.http.get<AnimeDataAPI<AnimeDetails>>(`${this.API}/anime?genres=${genresId}&limit=15`).pipe(
       map(res => res.data.filter(d => !!d.score)),
       delay(1000)
     );
