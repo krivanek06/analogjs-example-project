@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -6,7 +6,7 @@ import { filter, map, switchMap } from 'rxjs';
 import { AnimeApiService } from './../../services/anime-api.service';
 
 @Component({
-  selector: 'app-anime.details.page.ts',
+  selector: 'app-anime-details.page.ts',
   imports: [RouterLink, MatButtonModule],
   template: `
     @if (animeDetails.value(); as animeDetails) {
@@ -43,7 +43,7 @@ import { AnimeApiService } from './../../services/anime-api.service';
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class DetailsPageTsComponent {
+export default class AnimeDetailsPageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly animeApiService = inject(AnimeApiService);
 
@@ -55,6 +55,4 @@ export default class DetailsPageTsComponent {
         switchMap(animeId => this.animeApiService.getAnimeById(animeId))
       ),
   });
-
-  animeDetailsee = effect(() => console.log('animeDetails', this.animeDetails.value()));
 }

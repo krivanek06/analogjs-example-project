@@ -33,7 +33,7 @@ export default defineEventHandler(async event => {
   }
 
   // save anime to DB
-  Database.instance.addLikedAnime(username, anime.data);
+  await Database.instance.addLikedAnime(username, anime.data);
 
   return { data: anime.data };
 });

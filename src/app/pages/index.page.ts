@@ -32,7 +32,7 @@ import { AnimeDetails } from './../../server/api/api.model';
           @if (!authUser()) {
             <button type="button" routerLink="/login" mat-flat-button>Login</button>
           } @else {
-            <button type="button" mat-stroked-button>Liked Anime List</button>
+            <button type="button" mat-stroked-button routerLink="/my-list">Liked Anime List</button>
             <button type="button" mat-flat-button (click)="onLogout()">logout</button>
           }
         </div>

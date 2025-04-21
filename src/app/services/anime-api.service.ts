@@ -32,9 +32,6 @@ export class AnimeApiService {
 
   getTopAiringAnime(limit = 10) {
     return of(mockPopularAnime);
-    // return this.http.get<AnimeDataAPI<AnimeDetails>>(`${this.API}/anime?limit=${limit}&order_by=popularity&sort=asc&status=airing`).pipe(
-    //   map((d) => d.data),
-    // );
   }
 
   getAnimeGenres() {
