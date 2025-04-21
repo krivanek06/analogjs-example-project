@@ -14,7 +14,15 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     mainFields: ['module'],
   },
-  plugins: [analog()],
+  plugins: [
+    analog({
+      content: {
+        prismOptions: {
+          additionalLangs: ['yaml', 'sql', 'graphql', 'bash'],
+        },
+      },
+    }),
+  ],
   test: {
     globals: true,
     environment: 'jsdom',

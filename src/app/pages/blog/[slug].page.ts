@@ -1,0 +1,41 @@
+import { injectContent, MarkdownComponent } from '@analogjs/content';
+import { AsyncPipe } from '@angular/common';
+import { Component } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { RouterLink } from '@angular/router';
+
+@Component({
+  selector: 'app-blog-post',
+  standalone: true,
+  imports: [AsyncPipe, MarkdownComponent, RouterLink, MatButtonModule],
+  template: `
+    <section class="mx-auto max-w-[1240px] px-4 lg:px-6">
+      @if (post$ | async; as post) {
+        <article class="prose prose-slate dark:prose-invert mx-auto flex w-full flex-col px-4 py-16 md:max-w-4xl gap-4">
+          <!-- back button -->
+          <button mat-button routerLink="/">
+            <span>Back to Blog Posts</span>
+          </button>
+
+          <!-- image -->
+          <img class="z-10 h-[400px] object-contain" [src]="post.attributes.coverImage" />
+
+          <!-- content -->
+          <analog-markdown class="z-10 text-white" [content]="post.content" />
+        </article>
+      }
+    </section>
+  `,
+  styles: ``,
+})
+export default class BlogPostComponent {
+  readonly post$ = injectContent<{
+    title: string;
+    tags: string;
+    datePublished: string;
+    coverImage: string;
+  }>({
+    param: 'slug',
+    subdirectory: 'blog',
+  });
+}

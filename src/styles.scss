@@ -1,5 +1,9 @@
 @use '@angular/material' as mat;
 
+@use 'prismjs/plugins/toolbar/prism-toolbar.css';
+/* check node_modules/prismjs/themes/ for the available themes */
+@use 'prismjs/themes/prism-tomorrow';
+
 /* Tailwind directives  */
 @tailwind base;
 @tailwind components;

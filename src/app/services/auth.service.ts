@@ -29,6 +29,11 @@ export class AuthService {
 
   readonly storeEffect = effect(() => console.log('store', this.store()));
 
+  logout() {
+    this._authUser.set(null);
+    this._likedAnime.set([]);
+  }
+
   setAuthUser(user: AuthUser | null) {
     this._authUser.set(user);
   }

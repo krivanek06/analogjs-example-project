@@ -1,3 +1,4 @@
+import { injectContentFiles } from '@analogjs/content';
 import { Component, inject, signal } from '@angular/core';
 import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -16,6 +17,19 @@ import { AnimeDetails } from './../../server/api/api.model';
   imports: [MatButtonModule, RouterLink, MatSelectModule, FormsModule, MatProgressSpinnerModule],
   template: `
     <div class="lg:p-10 max-w-[1440px] mx-auto">
+      <!-- blog posts -->
+      <h2 class="text-2xl font-bold mb-4">Blog Post</h2>
+      <div class="my-8 flex justify-evenly">
+        @for (post of posts; track post.attributes.title) {
+          <div
+            [routerLink]="['/blog', post.slug]"
+            class="border shadow-lg rounded-lg grid gap-4 relative overflow-clip cursor-pointer hover:scale-105 duration-300 transition-all max-h-[200px] max-w-[300px]">
+            <img [src]="post.attributes.coverImage" class="object-cover" />
+            <div class="absolute bottom-0 bg-black opacity-75 w-full p-2">Blogpost - {{ post.attributes.title }}</div>
+          </div>
+        }
+      </div>
+
       <div class="mb-4 flex justify-between">
         <!-- anime genres -->
         <mat-form-field appearance="fill">
@@ -39,6 +53,7 @@ import { AnimeDetails } from './../../server/api/api.model';
       </div>
 
       <!-- list of anime -->
+      <h2 class="text-2xl font-bold mb-4">Anime List</h2>
       <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         @for (item of animeDisplay(); track $index) {
           <div class="relative bg-black rounded-lg shadow-lg grid">
@@ -51,7 +66,7 @@ import { AnimeDetails } from './../../server/api/api.model';
                 @if (item.isLiked) {
                   <button mat-stroked-button type="button" (click)="dislikeAnime(item)">dislike</button>
                 } @else {
-                  <button mat-stroked-button type="button" (click)="likeAnime(item)">like</button>
+                  <button mat-button type="button" (click)="likeAnime(item)">like</button>
                 }
               }
             </div>
@@ -85,6 +100,13 @@ export default class HomeComponent {
 
   readonly searchGenreId = signal<number>(0);
 
+  readonly posts = injectContentFiles<{
+    title: string;
+    tags: string;
+    datePublished: string;
+    coverImage: string;
+  }>(contentFiles => contentFiles.filename.includes('/src/content/blog'));
+
   readonly animeGenres = rxResource({
     loader: () => this.animeApiService.getAnimeGenres(),
   });
@@ -113,7 +135,7 @@ export default class HomeComponent {
   );
 
   onLogout() {
-    this.authService.setAuthUser(null);
+    this.authService.logout();
   }
 
   likeAnime(anime: AnimeDetails) {
