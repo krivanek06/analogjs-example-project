@@ -1,12 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterLink } from '@angular/router';
+import { combineLatest, map, switchMap } from 'rxjs';
 import { AnimeApiService } from '../services/anime-api.service';
 import { AuthService } from '../services/auth.service';
+import { AnimeDetails } from './../../server/api/api.model';
 
 @Component({
   selector: 'app-home',
@@ -26,30 +28,36 @@ import { AuthService } from '../services/auth.service';
         </mat-form-field>
 
         <!-- login -->
-        <div>
+        <div class="flex gap-4">
           @if (!authUser()) {
-            <button type="button" routerLink="/login" mat-flat-button color="primary">Login</button>
+            <button type="button" routerLink="/login" mat-flat-button>Login</button>
           } @else {
-            user logged in
+            <button type="button" mat-stroked-button>Liked Anime List</button>
+            <button type="button" mat-flat-button (click)="onLogout()">logout</button>
           }
         </div>
       </div>
 
       <!-- list of anime -->
       <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-        @if (animeDisplay.isLoading()) {
-          <div class="col-span-6 flex justify-center">
-            <mat-spinner />
-          </div>
-        } @else if (animeDisplay.error()) {
-          <div class="col-span-6 flex justify-center items-center h-[180px]">
-            <p class="text-red-500">Error: {{ animeDisplay.error() }}</p>
-          </div>
-        } @else {
-          @for (item of animeDisplay.value(); track $index) {
+        @for (item of animeDisplay(); track $index) {
+          <div class="relative bg-black rounded-lg shadow-lg grid">
+            <div class="flex justify-between my-2">
+              <!-- navigation -->
+              <button mat-button routerLink="/details/{{ item.mal_id }}">visit</button>
+
+              <!-- like/dislike -->
+              @if (authUser()) {
+                @if (item.isLiked) {
+                  <button mat-stroked-button type="button" (click)="dislikeAnime(item)">dislike</button>
+                } @else {
+                  <button mat-stroked-button type="button" (click)="likeAnime(item)">like</button>
+                }
+              }
+            </div>
+
             <div
-              routerLink="/details/{{ item.mal_id }}"
-              class="rounded-xl shadow-lg bg-gray-600 hover:scale-105 transition-transform duration-300 cursor-pointer relative h-full">
+              class="rounded-xl shadow-lg bg-gray-600 hover:scale-105 transition-transform duration-300 cursor-pointer relative">
               <!-- image -->
               <img [src]="item.images.webp.image_url" class="w-full h-full object-cover" />
 
@@ -58,7 +66,11 @@ import { AuthService } from '../services/auth.service';
                 {{ item.title_english ?? item.title }}
               </div>
             </div>
-          }
+          </div>
+        } @empty {
+          <div class="col-span-6 flex justify-center">
+            <mat-spinner />
+          </div>
         }
       </div>
     </div>
@@ -71,14 +83,48 @@ export default class HomeComponent {
 
   readonly authUser = this.authService.authUser;
 
+  readonly searchGenreId = signal<number>(0);
+
   readonly animeGenres = rxResource({
     loader: () => this.animeApiService.getAnimeGenres(),
   });
-  readonly animeDisplay = rxResource({
-    request: () => ({ id: this.searchGenreId() }),
-    loader: ({ request }) =>
-      request.id === 0 ? this.animeApiService.getTopAiringAnime() : this.animeApiService.searchAnime(request.id),
-  });
 
-  readonly searchGenreId = signal<number>(0);
+  readonly animeDisplay = toSignal(
+    combineLatest([
+      // resolve displayed anime
+      toObservable(this.searchGenreId).pipe(
+        switchMap(genreId =>
+          genreId === 0 ? this.animeApiService.getTopAiringAnime() : this.animeApiService.searchAnime(genreId)
+        )
+      ),
+      // listen on liked anime
+      toObservable(this.authService.likedAnime),
+    ]).pipe(
+      // check which anime is liked
+      map(([anime, likedAnime]) => {
+        const likedIds = new Set(likedAnime.map(anime => anime.mal_id));
+        return anime.map(anime => ({
+          ...anime,
+          isLiked: likedIds.has(anime.mal_id),
+        }));
+      })
+    ),
+    { initialValue: [] }
+  );
+
+  onLogout() {
+    this.authService.setAuthUser(null);
+  }
+
+  likeAnime(anime: AnimeDetails) {
+    this.animeApiService
+      .saveAnime(anime.mal_id, this.authUser()?.username ?? '')
+      .subscribe(res => this.authService.addLikedAnime(res.data));
+  }
+
+  dislikeAnime(anime: AnimeDetails) {
+    this.animeApiService
+      .removeAnime(anime.mal_id, this.authUser()?.username ?? '')
+      .subscribe(() => this.authService.removeLikedAnime(anime.mal_id));
+  }
 }

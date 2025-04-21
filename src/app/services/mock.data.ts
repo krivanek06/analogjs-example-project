@@ -1,4 +1,4 @@
-import { AnimeDetails, AnimeGenres } from './api.model';
+import { AnimeDetails, AnimeGenres } from '../../server/api/api.model';
 
 export const mockPopularAnime = [
   {

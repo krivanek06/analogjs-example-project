@@ -1,6 +1,6 @@
 import { fail, json, type PageServerAction } from '@analogjs/router/server/actions';
 import { readFormData } from 'h3';
-import { Database } from '../../../server/routes/database/database';
+import { Database } from '../../../server/database/database';
 
 export async function action({ event }: PageServerAction) {
   const body = await readFormData(event);

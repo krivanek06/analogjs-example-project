@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { delay, map, of } from 'rxjs';
-import { AnimeDataAPI, AnimeDetails } from './api.model';
+import { AnimeDataAPI, AnimeDetails } from '../../server/api/api.model';
 import { mockAnimeGenres, mockPopularAnime } from './mock.data';
 
 @Injectable({
@@ -11,6 +11,20 @@ export class AnimeApiService {
   // api docs: https://docs.api.jikan.moe
   private readonly API = 'https://api.jikan.moe/v4';
   private readonly http = inject(HttpClient);
+
+  saveAnime(id: number | string, username: string) {
+    return this.http.post<{ data: AnimeDetails }>('/api/anime/save-anime', {
+      id,
+      username,
+    });
+  }
+
+  removeAnime(id: number | string, username: string) {
+    return this.http.post<{ data: AnimeDetails }>('/api/anime/remove-anime', {
+      id,
+      username,
+    });
+  }
 
   getAnimeById(id: number | string) {
     return this.http.get<{ data: AnimeDetails }>(`${this.API}/anime/${id}`).pipe(map(res => res.data));
