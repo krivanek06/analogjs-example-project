@@ -1,6 +1,7 @@
 import { RouteMeta } from '@analogjs/router';
 import { injectResponse } from '@analogjs/router/tokens';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 
 export const routeMeta: RouteMeta = {
@@ -19,11 +20,13 @@ export const routeMeta: RouteMeta = {
 
 @Component({
   selector: 'app-page-not-found',
-  imports: [RouterLink],
+  imports: [RouterLink, MatButtonModule],
   template: `
-    <h2>Page Not Found</h2>
+    <div class="max-w-[1280px] mx-auto h-screen flex flex-col items-center justify-center gap-10">
+      <h2 class="text-2xl">Page Not Found</h2>
 
-    <a routerLink="/">Go Back Home</a>
+      <button mat-stroked-button routerLink="/">Go Back Home</button>
+    </div>
   `,
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
