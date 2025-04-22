@@ -21,6 +21,24 @@ export default defineConfig(({ mode }) => ({
           additionalLangs: ['yaml', 'sql', 'graphql', 'bash'],
         },
       },
+      prerender: {
+        routes: async () => [
+          '/login',
+          '/register',
+          {
+            contentDir: 'src/content/blog',
+            transform: file => {
+              const slug = file.attributes?.['slug'] || file.name;
+              return `/blog/${slug}`;
+            },
+          },
+        ],
+      },
+      nitro: {
+        routeRules: {
+          '/my-list': { ssr: false },
+        },
+      },
     }),
   ],
   test: {

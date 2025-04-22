@@ -2,11 +2,6 @@ import { createError, defineEventHandler, readBody } from 'h3';
 import { AnimeDetails } from './../../../api/api.model';
 import { Database } from './../../../database/database';
 
-// todo = create API endpoints to add and remove anime in DB
-// todo = add medatada to routes (home)
-// todo = display blogposts
-// todo = add metadata to blog posts (dynamic)
-
 export default defineEventHandler(async event => {
   const body = (await readBody(event)) as { id: string; username: string };
   const id = parseInt(body?.id);
