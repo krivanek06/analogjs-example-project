@@ -1,4 +1,5 @@
 import { injectContentFiles } from '@analogjs/content';
+import { RouteMeta } from '@analogjs/router';
 import { Component, inject, signal } from '@angular/core';
 import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -11,8 +12,32 @@ import { AnimeApiService } from '../services/anime-api.service';
 import { AuthService } from '../services/auth.service';
 import { AnimeDetails } from './../../server/api/api.model';
 
+export const routeMeta: RouteMeta = {
+  meta: [
+    {
+      name: 'description',
+      content: 'Example App about anime search',
+    },
+    {
+      name: 'author',
+      content: 'Eduard Krivanek',
+    },
+    {
+      property: 'og:title',
+      content: 'Anime Search',
+    },
+    {
+      property: 'og:description',
+      content: 'Example App about anime search',
+    },
+    {
+      property: 'og:image',
+      content: 'https://i.pinimg.com/736x/51/a3/a7/51a3a72e644039f85181e5cfd3801ee3.jpg',
+    },
+  ],
+};
+
 @Component({
-  selector: 'app-home',
   standalone: true,
   imports: [MatButtonModule, RouterLink, MatSelectModule, FormsModule, MatProgressSpinnerModule],
   template: `
