@@ -11,7 +11,7 @@ import { AuthService, AuthUser } from './../../services/auth.service';
   selector: 'app-login',
   imports: [MatFormFieldModule, MatInputModule, ReactiveFormsModule, MatButtonModule, FormAction],
   template: `
-    <form method="post" (onSuccess)="onSuccess($event)" (onError)="onError($any($event))" class="grid gap-4 w-[400px]">
+    <form method="post" (onSuccess)="onSuccess($event)" (onError)="onError($event)" class="grid gap-4 w-[400px]">
       <!-- username -->
       <mat-form-field appearance="fill">
         <mat-label>Username</mat-label>
@@ -34,7 +34,6 @@ export default class LoginComponent {
     }),
   });
 
-  // todo - mention that when I put AuthUser it fails - maybe use zod?
   onSuccess(data: unknown) {
     console.log('success', data);
     // save user
