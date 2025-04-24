@@ -1,6 +1,6 @@
 import { createError, defineEventHandler, readBody } from 'h3';
-import { AnimeDetails } from './../../../api/api.model';
-import { Database } from './../../../database/database';
+import { AnimeDetails } from '../../../api/api.model';
+import { Database } from '../../../database/database';
 
 export default defineEventHandler(async event => {
   const body = (await readBody(event)) as { id: string; username: string };

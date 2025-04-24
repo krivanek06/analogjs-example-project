@@ -1,5 +1,5 @@
 import { createError, defineEventHandler, readBody } from 'h3';
-import { Database } from './../../../database/database';
+import { Database } from '../../../database/database';
 
 export default defineEventHandler(async event => {
   const body = (await readBody(event)) as { id: string; username: string };
