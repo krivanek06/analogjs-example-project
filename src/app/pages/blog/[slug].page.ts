@@ -1,12 +1,40 @@
-import { injectContent, MarkdownComponent } from '@analogjs/content';
+import { injectContent, injectContentFiles, MarkdownComponent } from '@analogjs/content';
+import { RouteMeta } from '@analogjs/router';
 import { AsyncPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 
+export const routeMeta: RouteMeta = {
+  title: 'Blog Post',
+  meta: route => {
+    const file = injectContentFiles<{
+      title: string;
+      tags: string;
+      datePublished: string;
+      coverImage: string;
+    }>().find(contentFile => {
+      return contentFile.slug === route.params['slug'];
+    })!;
+
+    return [
+      {
+        name: 'author',
+        content: 'Eduard Krivanek',
+      },
+      {
+        property: 'og:title',
+        content: file.attributes.title,
+      },
+      {
+        property: 'og:published',
+        content: file.attributes.datePublished,
+      },
+    ];
+  },
+};
+
 @Component({
-  selector: 'app-blog-post',
-  standalone: true,
   imports: [AsyncPipe, MarkdownComponent, RouterLink, MatButtonModule],
   template: `
     <section class="mx-auto max-w-[1240px] px-4 lg:px-6">
