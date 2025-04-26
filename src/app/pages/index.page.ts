@@ -102,8 +102,7 @@ export const routeMeta: RouteMeta = {
                 }
               </div>
 
-              <div
-                class="rounded-xl shadow-lg bg-gray-600 hover:scale-105 transition-transform duration-300 cursor-pointer relative">
+              <div class="rounded-xl shadow-lg bg-gray-600 relative">
                 <!-- image -->
                 <img [src]="item.images.webp.image_url" class="w-full h-full object-cover" />
 
