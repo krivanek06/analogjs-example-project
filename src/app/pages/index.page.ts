@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterLink } from '@angular/router';
-import { combineLatest, map, switchMap } from 'rxjs';
+import { combineLatest, map, startWith, switchMap } from 'rxjs';
 import { AnimeApiService } from '../services/anime-api.service';
 import { AuthService } from '../services/auth.service';
 import { AnimeDetails } from './../../server/api/api.model';
@@ -81,37 +81,39 @@ export const routeMeta: RouteMeta = {
       <!-- list of anime -->
       <h2 class="text-2xl font-bold mb-4">Anime List</h2>
       <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-        @for (item of animeDisplay(); track $index) {
-          <div class="relative bg-black rounded-lg shadow-lg grid">
-            <div class="flex justify-between my-2">
-              <!-- navigation -->
-              <button mat-button routerLink="/details/{{ item.mal_id }}">visit</button>
-
-              <!-- like/dislike -->
-              @if (authUser()) {
-                @if (item.isLiked) {
-                  <button mat-stroked-button type="button" (click)="dislikeAnime(item)">dislike</button>
-                } @else {
-                  <button mat-button type="button" (click)="likeAnime(item)">like</button>
-                }
-              }
-            </div>
-
-            <div
-              class="rounded-xl shadow-lg bg-gray-600 hover:scale-105 transition-transform duration-300 cursor-pointer relative">
-              <!-- image -->
-              <img [src]="item.images.webp.image_url" class="w-full h-full object-cover" />
-
-              <!-- title -->
-              <div class="absolute bg-black opacity-85 text-white p-4 bottom-0 w-full text-center">
-                {{ item.title_english ?? item.title }}
-              </div>
-            </div>
-          </div>
-        } @empty {
-          <div class="col-span-6 flex justify-center">
+        @if (animeDisplay().status === 'loading') {
+          <div class="col-span-6 flex justify-center text-center">
             <mat-spinner />
           </div>
+        } @else {
+          @for (item of animeDisplay().data; track $index) {
+            <div class="relative bg-black rounded-lg shadow-lg grid">
+              <div class="flex justify-between my-2">
+                <!-- navigation -->
+                <button mat-button routerLink="/details/{{ item.mal_id }}">visit</button>
+
+                <!-- like/dislike -->
+                @if (authUser()) {
+                  @if (item.isLiked) {
+                    <button mat-stroked-button type="button" (click)="dislikeAnime(item)">dislike</button>
+                  } @else {
+                    <button mat-button type="button" (click)="likeAnime(item)">like</button>
+                  }
+                }
+              </div>
+
+              <div
+                class="rounded-xl shadow-lg bg-gray-600 hover:scale-105 transition-transform duration-300 cursor-pointer relative">
+                <!-- image -->
+                <img [src]="item.images.webp.image_url" class="w-full h-full object-cover" />
+
+                <!-- title -->
+                <div class="absolute bg-black opacity-85 text-white p-4 bottom-0 w-full text-center">
+                  {{ item.title_english ?? item.title }}
+                </div>
+              </div>
+            </div>
+          }
         }
       </div>
     </div>
@@ -142,7 +144,12 @@ export default class HomeComponent {
       // resolve displayed anime
       toObservable(this.searchGenreId).pipe(
         switchMap(genreId =>
-          genreId === 0 ? this.animeApiService.getTopAiringAnime() : this.animeApiService.searchAnime(genreId)
+          genreId === 0
+            ? this.animeApiService.getTopAiringAnime().pipe(map(d => ({ status: 'loaded' as const, data: d })))
+            : this.animeApiService.searchAnime(genreId).pipe(
+                map(d => ({ status: 'loaded' as const, data: d })),
+                startWith({ status: 'loading' as const, data: [] })
+              )
         )
       ),
       // listen on liked anime
@@ -151,13 +158,14 @@ export default class HomeComponent {
       // check which anime is liked
       map(([anime, likedAnime]) => {
         const likedIds = new Set(likedAnime.map(anime => anime.mal_id));
-        return anime.map(anime => ({
+        const data = anime.data.map(anime => ({
           ...anime,
           isLiked: likedIds.has(anime.mal_id),
         }));
+        return { status: anime.status, data };
       })
     ),
-    { initialValue: [] }
+    { initialValue: { status: 'loading' as const, data: [] } }
   );
 
   onLogout() {
