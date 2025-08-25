@@ -48,7 +48,7 @@ export default class AnimeDetailsPageComponent {
   private readonly animeApiService = inject(AnimeApiService);
 
   readonly animeDetails = rxResource({
-    loader: () =>
+    stream: () =>
       this.route.paramMap.pipe(
         map(params => params.get('animeId')),
         filter((animeId): animeId is string => !!animeId),

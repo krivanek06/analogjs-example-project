@@ -135,7 +135,7 @@ export default class HomeComponent {
   }>(contentFiles => contentFiles.filename.includes('/src/content/blog'));
 
   readonly animeGenres = rxResource({
-    loader: () => this.animeApiService.getAnimeGenres(),
+    stream: () => this.animeApiService.getAnimeGenres(),
   });
 
   readonly animeDisplay = toSignal(

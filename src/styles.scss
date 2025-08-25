@@ -4,11 +4,6 @@
 /* check node_modules/prismjs/themes/ for the available themes */
 @use 'prismjs/themes/prism-tomorrow';
 
-/* Tailwind directives  */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 html {
   color-scheme: light dark;
   @include mat.theme(
